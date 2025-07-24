@@ -76,50 +76,25 @@
       display: block;
     }
 
-     menu-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: nowrap; /* لا يسمح بتقسيم الأسطر */
-  gap: 8px;
-  font-size: 14px;
-  margin: 10px 0;
-  background-color: rgba(255,255,255,0.2);
-  padding: 5px;
-  border-radius: 8px;
-}
+     .menu-item {
+    margin: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+   font-size: 14px;
+   gap: 10px;
+   flex-wrap: wrap;
+  }
 
-   .menu-item .item-name {
-  flex: 2;
-  font-size: 13px;
-  text-align: right;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.menu-item .price {
-  flex: 1;
-  text-align: center;
-  font-size: 13px;
-  font-weight: bold;
-  color: green;
-  white-space: nowrap;
-}
-
-.menu-item .qty-input {
-  flex: 0 0 50px;
-  padding: 3px;
-  font-size: 13px;
-  text-align: center;
-}
-
-.menu-item .order-btn {
-  flex: 0 0 auto;
-  font-size: 13px;
-  padding: 4px 10px;
-  white-space: nowrap;
-}
+    .order-btn {
+      background-color: #4aca63;
+      color: white;
+      border: none;
+      padding: 5px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
 
     .close-btn {
       position: absolute;
@@ -135,9 +110,34 @@
     .box.expanded .close-btn {
       display: block;
     }
-   
- 
-  
+    .menu-item span.item-name {
+    flex: 2;
+    text-align: right; /* الاسم على اليمين */
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 13px;
+  }
+
+  /* السعر في المنتصف */
+  .menu-item span.price {
+    flex: 1;
+    color: green;
+    
+    font-weight: bold;
+    font-size: 13px;
+  }
+
+  /* حقل الكمية */
+  .menu-item input.qty-input {
+    width: 45px;
+    padding: 1px 3px;
+    margin-left: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
   
   
   #table-number {
@@ -162,11 +162,11 @@
     background-color: #e74c3c; /* لون أحمر */
     color: white;
     border: none;
-    padding: 4px 14px;
+    padding: 2px 12px;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 13px;
-    margin-left: 10px;
+    font-size: 10px;
+    margin-left: 6px;
     flex-shrink: 0;
   }
 
@@ -322,7 +322,7 @@
      padding:12px 60px;">تأكيد الطلب</button>
   </div>
   </div>
-
+  
   <form id="orderForm" action="https://formspree.io/f/xjkoglbw" method="post" style="display: none;">
   <input type="hidden" name="order" id="orderInput">
   <input type="hidden" name="table" id="tableInput"></form>
