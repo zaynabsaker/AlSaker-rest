@@ -28,7 +28,7 @@
       background-position: center;
       border-radius: 15px;
       color: white;
-      padding:20px 60px;
+      padding:50px 51px;
       margin-bottom: 20px;
       font-size: 22px;
       font-weight: bold;
@@ -169,6 +169,8 @@
     margin-left: 10px;
     flex-shrink: 0;
   }
+
+  
   </style>
 </head>
 <body>
@@ -206,7 +208,7 @@
     <button class="order-btn"  onclick="addToCart('سجق مشوي ',6, this.previousElementSibling.value)">أضف الى السلة</button>
   </div>
   <div class="menu-item">
-    <span class="item-name">طبق مشاوي مشكل فردي</span>
+    <span class="item-name" style="font-size: 10px;">طبق مشاوي مشكل فردي</span>
     <span class="price">10$</span>
     <input type="number" min="1" value="1" class="qty-input" />
     <button class="order-btn"  onclick="addToCart('طبق مشاوي مشكل فردي', 10,this.previousElementSibling.value)" >أضف إلى السلة</button>
@@ -313,7 +315,7 @@
     </div>
 
   <label for="tableNumber" style="color: white;"></label>
-  <input type="text";style="color:white" id="tableNumber"  placeholder="رقم الطاولة/ملاحظة" style="background-color: rgb(26, 28, 26);position:fixed;text-align: center; color:white;bottom: 65px;left: 50%;transform: translateX(-50%); width: 90px;height: 40px;border-radius: 6px;"/>
+  <input type="text";style="color:white" id="tableNumber"  placeholder="رقم الطاولة/ملاحظة" style="background-color: rgb(31, 225, 31);position:fixed;text-align: center; color:white;bottom: 65px;left: 50%;transform: translateX(-50%); width: 90px;height: 40px;border-radius: 6px;"/>
 </div>
 
      <button onclick="checkout()" class="order-btn" style="background-color: red;border-radius: 12px; position:fixed;bottom: 20px;left: 50%;transform: translateX(-50%);z-index: 1000;color:aliceblue;
@@ -401,7 +403,7 @@
       message += "\n\nرقم الطاولة: " + encodeURIComponent(tableNumber);
     }
 
-      window.open("https://wa.me/96181996762?text=" + message, "_blank");
+      
       window.open("https://wa.me/96103110284?text=" + message, "_blank");
     }
   }
