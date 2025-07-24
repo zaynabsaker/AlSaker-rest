@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>مطعم الصقر</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      text-align: center;
+      padding: 40px 20px;
+      color: #333;
+    }
+
+    h1, h4 {
+      margin-bottom: 10px;
+    }
+
+    .box-container {
+      max-width: 500px;
+      margin: auto;
+    }
+
+    .box {
+      background-size: cover;
+      background-position: center;
+      border-radius: 15px;
+      color: white;
+      padding: 30px 20px;
+      margin-bottom: 20px;
+      font-size: 22px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .box.expanded {
+      min-height: 220px;
+    }
+
+    .food-box {
+      background-image: url('fd69ac60-56fa-47ed-91c7-7b9dfd427df9.jpeg');
+    }
+
+    .mokabilat-box {
+      background-image: url('7ec41e6c-03aa-4cd6-8b17-9345346cdf43.jpeg');
+    }
+
+    .drink-box {
+      background-image: url('dce6b555-7500-4269-a03f-e40b397f9428.jpeg');
+    }
+
+    .sweet-box {
+      background-image: url('48977f8c-16af-4077-b500-4b58b5a228fb.jpeg');
+    }
+
+    .argile-box {
+      background-image: url('52959723-2bc8-4900-b051-d3de43503e8b.jpeg');
+    }
+
+    .offers-box {
+      background-image: url('79242762-4ff3-4c43-a3ac-16e872328a40.jpeg');
+    }
+
+    .items {
+      display: none;
+      margin-top: 20px;
+      text-align: right;
+    }
+
+    .box.expanded .items {
+      display: block;
+    }
+
+     .menu-item {
+    margin: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+   font-size: 14px;
+   gap: 10px;
+   flex-wrap: wrap;
+  }
+
+    .order-btn {
+      background-color: #4aca63;
+      color: white;
+      border: none;
+      padding: 5px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      left: 15px;
+      font-size: 22px;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      display: none;
+    }
+
+    .box.expanded .close-btn {
+      display: block;
+    }
+    .menu-item span.item-name {
+    flex: 2;
+    text-align: right; /* الاسم على اليمين */
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 13px;
+  }
+
+  /* السعر في المنتصف */
+  .menu-item span.price {
+    flex: 1;
+    color: green;
+    text-align: center;
+    font-weight: bold;
+    font-size: 13px;
+  }
+
+  /* حقل الكمية */
+  .menu-item input.qty-input {
+    width: 45px;
+    padding: 3px 5px;
+    margin-left: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+  
+  
+  #table-number {
+  background-color: #4aca63;
+      color: white;
+      border: none;
+      padding: 5px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+}
+
+#table-number::placeholder {
+ background-color: red; position:fixed;bottom: 20px;left: 50%;transform: translateX(-50%)
+}
+
+#table-number:focus {
+  background-color: red; position:fixed;bottom: 20px;left: 50%;transform: translateX(-50%)
+}
+  /* زر الإضافة للسلة */
+  .menu-item button.order-btn {
+    background-color: #e74c3c; /* لون أحمر */
+    color: white;
+    border: none;
+    padding: 4px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    margin-left: 10px;
+    flex-shrink: 0;
+  }
+  </style>
+</head>
+<body>
+
+  <h1>أهلاً بكم في مطعم الصقر</h1>
+  <h4>نفتح من الساعة 10 صباحاً حتى الساعة 10 مساءً</h4>
+
+  <div class="box-container">
+
+
+
+    <!-- مشاوي -->
+    <div class="box food-box" onclick="handleBoxClick(event,this)">
+      مشاوي
+      <span class="close-btn" onclick="event.stopPropagation(); collapseBox(this)">×</span>
+      <div class="items">
+     <div class="menu-item">
+    <span class="item-name">كباب</span>
+    <span class="price">7$</span>
+    <input type="number" id="qty1" min="1" value="1" placeholder="quantity" style="width: 50px;">
+     <button class="order-btn"  onclick="addToCart('كباب',7, this.previousElementSibling.value)">أضف الى السلة</button>
+</div>
+
+  <div class="menu-item">
+    <span class="item-name">شيش طاووق</span>
+    <span class="price">7$</span>
+    <input type="number" min="1" value="1" class="qty-input" />
+    <button class="order-btn"
+     onclick="addToCart('شيش طاووق ', 7, this.previousElementSibling.value)" >أضف الى السلة</button>
+  </div>
+  <div class="menu-item">
+    <span class="item-name">سجق مشوي</span>
+    <span class="price">6$</span>
+    <input type="number" min="1" value="1" class="qty-input" />
+    <button class="order-btn"  onclick="addToCart('سجق مشوي ',6, this.previousElementSibling.value)">أضف الى السلة</button>
+  </div>
+  <div class="menu-item">
+    <span class="item-name">طبق مشاوي مشكل فردي</span>
+    <span class="price">10$</span>
+    <input type="number" min="1" value="1" class="qty-input" />
+    <button class="order-btn"  onclick="addToCart('طبق مشاوي مشكل فردي', 10,this.previousElementSibling.value)" >أضف إلى السلة</button>
+  </div>
+  <div class="menu-item">
+    <span class="item-name">طبق مشاوي مشكل عائلي</span>
+    <span class="price">20$</span>
+    <input type="number" min="1" value="1" class="qty-input" />
+    <button class="order-btn"  onclick="addToCart('طبق مشاوي مشكل عائلي', 20,
+    this.previousElementSibling.value)" >أضف إلى السلة</button>
+  </div>
+</div>
+</div>
+
+    <div class="box mokabilat-box" onclick="handleBoxClick(event,this)">
+  مقبلات
+  <span class="close-btn" onclick="event.stopPropagation(); collapseBox(this)">×</span>
+  <div class="items">
+    <div class="menu-item">
+      <span class="item-name">حمص بطحينية</span>
+      <span class="price">3.5$</span>
+      <input type="number" min="1" value="1" class="qty-input" />
+      <button class="order-btn" onclick="addToCart('حمص بطحينية', 3.5,
+    this.previousElementSibling.value)">أضف إلى السلة</button></div>
+
+    <div class="menu-item">
+      <span class="item-name">متبل باذنجان مشوي</span>
+       <span class="price">3.5$</span>
+       <input type="number" min="1" value="1" class="qty-input" />
+       <button class="order-btn" onclick="addToCart('متبل باتنجان مشوي', 3.5,
+    this.previousElementSibling.value)">أضف إلى السلة</button></div>
+    <div class="menu-item"><span class="item-name">ورق عنب</span> <span class="price">4$</span><input type="number" min="1" value="1" class="qty-input" /><button class="order-btn" 
+    onclick="addToCart('ورق عنب', 4,this.previousElementSibling.value)">أضف إلى السلة</button></div>
+    <div class="menu-item"><span class="item-name">بطاطا مقلية</span> <span class="price">3$</span><input type="number" min="1" value="1" class="qty-input" /><button class="order-btn" onclick="addToCart('بطاطا مقلية', 3,
+    this.previousElementSibling.value)">أضف إلى السلة</button></div>
+    <div class="menu-item"><span class="item-name">فتوش</span> <span class="price">4$</span><input type="number" min="1" value="1" class="qty-input" /><button class="order-btn"
+     onclick="addToCart('فتوش',4,this.previousElementSibling.value)">أضف إلى السلة</button></div>
+    <div class="menu-item"><span class="item-name">تبولة</span> <span class="price">4$</span><input type="number" min="1" value="1" class="qty-input" /><button class="order-btn" onclick="addToCart('تبولة',4,this.previousElementSibling.value)">أضف إلى السلة</button></div>
+    <div class="menu-item"><span class="item-name">مقبلات مشكلة</span> <span class="price">8$</span><input type="number" min="1" value="1" class="qty-input" /><button class="order-btn" onclick="addToCart('مقبلات مشكلة',8,this.previousElementSibling.value)">أضف إلى السلة</button></div>
+  </div>
+</div>
+
+
+
+  <div class="box drink-box" onclick="handleBoxClick(event,this)">
+  مشروبات
+  <span class="close-btn" onclick="event.stopPropagation(); collapseBox(this)">×</span>
+  <div class="items">
+    <h3>مشروبات باردة:</h3>
+    <div class="menu-item"><span class="item-name">مشروبات غازية</span> <span class="price">1.5$</span><input type="number" min="1" value="1" class="qty-input"/><button class="order-btn" onclick="addToCart('مشروبات غازية',1.5,this.previousElementSibling.value)">أضف إلى السلة</button></div>
+    <div class="menu-item"><span class="item-name">ماء معدني</span> <span class="price">0.5$</span><input type="number" min="1" value="1" class="qty-input"/><button class="order-btn"onclick="addToCart('ماء معدني',0.5,this.previousElementSibling.value)">أضف إلى السلة</button></div>
+    <div class="menu-item"><span class="item-name">لبن عيران</span> <span class="price">1.5$</span><input type="number" min="1" value="1" class="qty-input"/><button class="order-btn" onclick="addToCart('لبن عيران',1.5,this.previousElementSibling.value)">أضف إلى السلة</button></div>
+    <div class="menu-item"><span class="item-name">موهيتو</span> <span class="price">3$</span><input type="number" min="1" value="1" class="qty-input"/><button class="order-btn" onclick="addToCart('موهيتو',3,this.previousElementSibling.value)">أضف إلى السلة</button></div>
+    <div class="menu-item"><span class="item-name">عصير مانغو/فراولة</span> <span class="price">2.5$</span><input type="number" min="1" value="1" class="qty-input"/><button class="order-btn" onclick="addToCart('عصير مانغو/فراولة',2.5,this.previousElementSibling.value)">أضف إلى السلة</button></div>
+    <div class="menu-item"><span class="item-name">عصير رمان طبيعي</span> <span class="price">3$</span><input type="number" min="1" value="1" class="qty-input"/><button class="order-btn" onclick="addToCart('عصير رمان طبيعي',3,this.previousElementSibling.value)">أضف إلى السلة</button></div>
+    <h3>مشروبات ساخنة:</h3>
+    <div class="menu-item"><span class="item-name">شاي</span> <span class="price">1$</span><input type="number" min="1" value="1" class="qty-input"/><button class="order-btn" onclick="addToCart('شاي',1,this.previousElementSibling.value)">أضف إلى السلة</button></div>
+    <div class="menu-item"><span class="item-name">قهوة</span> <span class="price">2$</span><input type="number" min="1" value="1" class="qty-input"/><button class="order-btn" onclick="addToCart('قهوة',2,this.previousElementSibling.value)">أضف إلى السلة</button></div>
+    <div class="menu-item"><span class="item-name">نيسكافيه</span> <span class="price">2$</span><input type="number" min="1" value="1" class="qty-input"/><button class="order-btn" onclick="addToCart('نيسكافيه',2,this.previousElementSibling.value)">أضف إلى السلة</button></div>
+    <div class="menu-item"><span class="item-name">هوت شوكليت</span> <span class="price">3$</span><input type="number" min="1" value="1" class="qty-input"/><button class="order-btn" onclick="addToCart('هوت شوكليت',3,this.previousElementSibling.value)">أضف إلى السلة</button></div>
+  </div>
+</div>
+
+
+
+    <div class="box sweet-box" onclick="handleBoxClick(event,this)">
+  حلويات
+  <span class="close-btn" onclick="event.stopPropagation(); collapseBox(this)">×</span>
+  <div class="items">
+    <div class="menu-item"><span class="item-name">كنافة</span> <span class="price">3$</span><input type="number" min="1" value="1" class="qty-input" /><button class="order-btn" onclick="addToCart('كنافة',3,this.previousElementSibling.value)">أضف إلى السلة</button></div>
+    <div class="menu-item"><span class="item-name">كنافة بالجبن</span> <span class="price">4$</span><input type="number" min="1" value="1" class="qty-input" /><button class="order-btn" onclick="addToCart('كنافة بالجبن',4,this.previousElementSibling.value)">أضف إلى السلة</button></div>
+    <div class="menu-item"><span class="item-name">بقلاوة مشكلة</span> <span class="price">4$</span><input type="number" min="1" value="1" class="qty-input" /><button class="order-btn" onclick="addToCart('بقلاوة مشكلة',4,this.previousElementSibling.value)">أضف إلى السلة</button></div>
+    <div class="menu-item"><span class="item-name">حلويات شرقية مشكلة</span> <span class="price">5$</span><input type="number" min="1" value="1" class="qty-input" /><button class="order-btn" onclick="addToCart('حلويات شرقية مشكلة',5,this.previousElementSibling.value)">أضف إلى السلة</button></div>
+  </div>
+</div>
+
+
+
+
+   <div class="box argile-box" onclick="handleBoxClick(event,this)">
+  نرجيلة
+  <span class="close-btn" onclick="event.stopPropagation(); collapseBox(this)">×</span>
+  <div class="items">
+    <div class="menu-item"><span class="item-name">تفاحتين</span> <span class="price">4$</span><input type="number" min="1" value="1" class="qty-input" /><button class="order-btn" onclick="addToCart('تفاحتين',4,this.previousElementSibling.value)">أضف إلى السلة</button></div>
+    <div class="menu-item"><span class="item-name">نعنع/عنب</span> <span class="price">4$</span><input type="number" min="1" value="1" class="qty-input" /><button class="order-btn" onclick="addToCart('نعنع/عنب',4,this.previousElementSibling.value)">أضف إلى السلة</button></div>
+    <div class="menu-item"><span class="item-name">بطيخ مع نعنع</span> <span class="price">5$</span><input type="number" min="1" value="1" class="qty-input" /><button class="order-btn" onclick="addToCart('بطيخ مع نعنع',1,this.previousElementSibling.value)">أضف إلى السلة</button></div>
+    <div class="menu-item"><span class="item-name">تبديل رأس / فحم إضافي</span> <span class="price">2$</span><input type="number" min="1" value="1" class="qty-input" /><button class="order-btn" onclick="addToCart('تبديل رأس/فحم اضافي',2,this.previousElementSibling.value)">أضف إلى السلة</button></div>
+  </div>
+</div>
+
+
+
+    <!-- نشاطات وعروضات -->
+    <div class="box offers-box" onclick="handleBoxClick(event,this)">
+      نشاطات وعروضات
+      <span class="close-btn" onclick="event.stopPropagation(); collapseBox(this)">×</span>
+      <div class="items">
+        <h3>نشاطات:</h3>
+        <div class="menu-item"><span>سهرة نار كل أحد</span> <span>10$</span></div>
+        <div class="menu-item"><span>رافتينغ</span> <span>7$</span></div>
+        <h3>عروضات:</h3>
+        <div class="menu-item">خصم خاص للعائلات بنسبة 15%</div>
+      </div>
+    </div>
+
+  <label for="tableNumber" style="color: white;"></label>
+  <input type="text";style="color:white" id="tableNumber"  placeholder="رقم الطاولة/ملاحظة" style="background-color: rgb(26, 28, 26);position:fixed;text-align: center; color:white;bottom: 65px;left: 50%;transform: translateX(-50%); width: 90px;height: 40px;border-radius: 6px;"/>
+</div>
+
+     <button onclick="checkout()" class="order-btn" style="background-color: red;border-radius: 12px; position:fixed;bottom: 20px;left: 50%;transform: translateX(-50%);z-index: 1000;color:aliceblue;
+     padding:12px 60px;">تأكيد الطلب</button>
+  </div>
+  </div>
+
+  <script>
+  function handleBoxClick(event, box) {
+    // ✅ إذا كان النقر على زر أو إدخال داخل البوكس، تجاهل
+    if (event.target.closest('button') || event.target.closest('input')) {
+      return; // لا تفتح أو تغلق البوكس
+    }
+
+    const isExpanded = box.classList.contains('expanded');
+    document.querySelectorAll('.box').forEach(b => b.classList.remove('expanded'));
+    if (!isExpanded) box.classList.add('expanded');
+  }
+
+  function collapseBox(closeBtn) {
+    const box = closeBtn.closest('.box');
+    box.classList.remove('expanded');
+  }
+
+  let cart = [];
+
+  function addToCart(productName, price, quantity) {
+    quantity = parseInt(quantity);
+    if (quantity <= 0 || isNaN(quantity)) {
+      alert("يرجى إدخال كمية صحيحة.");
+      return;
+    }
+    cart.push({ name: productName, price: price, quantity: quantity });
+    alert("تمت إضافة " + quantity + " من " + productName + " بسعر " + price + "$ إلى الطلب.");
+  }
+
+  function checkout() {
+    if (cart.length === 0) {
+      alert("لم يتم إضافة أي عنصر إلى السلة.");
+      return;
+    }
+
+    let total = 0;
+    let orderDetails = "تفاصيل الطلب:\n";
+
+    cart.forEach((item, index) => {
+      const itemTotal = item.price * item.quantity;
+      orderDetails +=
+        (index + 1) + "- " + item.name + " × " + item.quantity + " = " + itemTotal + "$\n";
+      total += itemTotal;
+    });
+
+    orderDetails += "\nالإجمالي: " + total + "$";
+
+    const noteField = document.getElementById("note");
+    if (noteField) {
+      const note = noteField.value.trim();
+      if (note !== "") {
+        orderDetails += "\nملاحظة: " + note;
+      }
+    }
+     const tableNumberInput = document.getElementById("tableNumber");
+  const tableNumber = tableNumberInput ? tableNumberInput.value.trim() : "";
+  if (tableNumber !== "") {
+    orderDetails += "\nرقم الطاولة: " + tableNumber;
+  }
+
+
+
+
+    orderDetails += "\n\nهل ترغب بتأكيد الطلب؟";
+
+    if (confirm(orderDetails)) {
+      let message = encodeURIComponent(
+        cart.map((item, index) =>
+          (index + 1) + "- " + item.name + " × " + item.quantity + " = " + (item.price * item.quantity) + "$"
+        ).join("\n") +
+        "\n\nالإجمالي: " + total + "$"
+      );
+
+      if (noteField && noteField.value.trim() !== "") {
+        message += "\n\nملاحظة: " + encodeURIComponent(noteField.value.trim());
+      }
+        if (tableNumber !== "") {
+      message += "\n\nرقم الطاولة: " + encodeURIComponent(tableNumber);
+    }
+
+      window.open("https://wa.me/96181996762?text=" + message, "_blank");
+    }
+  }
+</script>
+
+</body>
+</html>
