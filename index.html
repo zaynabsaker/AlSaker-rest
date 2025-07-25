@@ -28,7 +28,7 @@
       background-position: center;
       border-radius: 15px;
       color: white;
-      padding:4px;
+      padding:35px;
       margin-bottom: 20px;
       font-size: 22px;
       font-weight: bold;
@@ -316,13 +316,21 @@
     </div>
 
   <label for="tableNumber" style="color: white;"></label>
-  <input type="text";style="color:white" id="tableNumber"  placeholder="رقم الطاولة/ملاحظة" style="background-color: rgb(31, 225, 31);position:fixed;text-align: center; color:white;bottom: 65px;left: 50%;transform: translateX(-50%); width: 90px;height: 40px;border-radius: 6px;"/>
+  <input type="text";style="color:white" id="tableNumber"  placeholder="رقم الطاولة/ملاحظة" style="background-color: rgb(31, 225, 31);position:fixed;text-align: center; color:white;bottom: 65px;left: 50%;transform: translateX(-50%); width: 90px;height: 40px;border-radius: 6px;"autocomplete="off"/>
+ 
 </div>
-     
+<div id="cart-panel" style="position:fixed;bottom:80px;left:10px;width:210px;background:white;padding:12px;border-radius:12px;box-shadow:0 0 10px rgba(0,0,0,0.2);z-index:999;text-align:right;font-size:14px;max-height:350px;overflow-y:auto;">
+  <h4 style="margin-bottom:10px">🛒 سلة الطلب:</h4>
+  <div id="cart-items"></div>
+  <hr />
+  <div><strong>الإجمالي: <span id="cart-total">0</span>$</strong></div>
+</div>
+
      <button onclick="checkout()" class="order-btn" style="background-color: red;border-radius: 12px; position:fixed;bottom: 20px;left: 50%;transform: translateX(-50%);z-index: 1000;color:aliceblue;
      padding:12px 60px;">تأكيد الطلب</button>
   </div>
   </div>
+
   
   <form id="orderForm" action="https://formspree.io/f/xjkoglbw" method="post" style="display: none;">
   <input type="hidden" name="order" id="orderInput">
@@ -345,99 +353,142 @@
     box.classList.remove('expanded');
   }
 
-  let cart = [];
 
-  function addToCart(productName, price, quantity) {
-    quantity = parseInt(quantity);
-    if (quantity <= 0 || isNaN(quantity)) {
-      alert("يرجى إدخال كمية صحيحة.");
-      return;
-    }
+ 
+let cart = [];
+
+// إضافة منتج إلى السلة
+function addToCart(productName, price, quantity) {
+  quantity = parseInt(quantity);
+  if (quantity <= 0 || isNaN(quantity)) {
+    alert("يرجى إدخال كمية صحيحة.");
+    return;
+  }
+
+  const existing = cart.find(item => item.name === productName);
+  if (existing) {
+    existing.quantity += quantity;
+  } else {
     cart.push({ name: productName, price: price, quantity: quantity });
-    alert("تمت إضافة " + quantity + " من " + productName + " بسعر " + price + "$ إلى الطلب.");
   }
 
-  function checkout() {
-    if (cart.length === 0) {
-      alert("لم يتم إضافة أي عنصر إلى السلة.");
-      return;
+  renderCartPreview();
+}
+
+// عرض السلة
+function renderCartPreview() {
+  const cartItemsDiv = document.getElementById("cart-items");
+  const cartTotalSpan = document.getElementById("cart-total");
+
+  if (!cartItemsDiv || !cartTotalSpan) return;
+
+  if (cart.length === 0) {
+    cartItemsDiv.innerHTML = "<em>السلة فارغة</em>";
+    cartTotalSpan.textContent = "0";
+    return;
+  }
+
+  let total = 0;
+  cartItemsDiv.innerHTML = "";
+
+  cart.forEach((item, index) => {
+    const itemTotal = item.price * item.quantity;
+    total += itemTotal;
+
+    const itemDiv = document.createElement("div");
+    itemDiv.style.marginBottom = "10px";
+    itemDiv.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap: wrap;">
+        <span style="flex:1">${item.name}</span>
+        <button onclick="changeQuantity(${index}, -1)" style="padding:0 6px">➖</button>
+        <span>${item.quantity}</span>
+        <button onclick="changeQuantity(${index}, 1)" style="padding:0 6px">➕</button>
+        <span>${itemTotal.toFixed(1)}$</span>
+        <button onclick="removeItem(${index})" style="color:red;font-weight:bold;padding:0 6px">🗑️</button>
+      </div>
+    `;
+    cartItemsDiv.appendChild(itemDiv);
+  });
+
+  cartTotalSpan.textContent = total.toFixed(1);
+}
+
+// تعديل الكمية
+function changeQuantity(index, change) {
+  if (cart[index]) {
+    cart[index].quantity += change;
+    if (cart[index].quantity <= 0) {
+      cart.splice(index, 1);
     }
+    renderCartPreview();
+  }
+}
 
-    let total = 0;
-    let orderDetails = "تفاصيل الطلب:\n";
+// حذف منتج
+function removeItem(index) {
+  if (cart[index]) {
+    cart.splice(index, 1);
+    renderCartPreview();
+  }
+}
 
-    cart.forEach((item, index) => {
-      const itemTotal = item.price * item.quantity;
-      orderDetails +=
-        (index + 1) + "- " + item.name + " × " + item.quantity + " = " + itemTotal + "$\n";
-      total += itemTotal;
-    });
+// تأكيد الطلب
+function checkout() {
+  if (cart.length === 0) {
+    alert("لم يتم إضافة أي عنصر إلى السلة.");
+    return;
+  }
 
-    orderDetails += "\nالإجمالي: " + total + "$";
+  let total = 0;
+  let orderDetails = "تفاصيل الطلب:\n";
 
-    const noteField = document.getElementById("note");
-    if (noteField) {
-      const note = noteField.value.trim();
-      if (note !== "") {
-        orderDetails += "\nملاحظة: " + note;
-      }
-    }
-     const tableNumberInput = document.getElementById("tableNumber");
+  cart.forEach((item, index) => {
+    const itemTotal = item.price * item.quantity;
+    orderDetails +=
+      (index + 1) + "- " + item.name + " × " + item.quantity + " = " + itemTotal.toFixed(1) + "$\n";
+    total += itemTotal;
+  });
+
+  orderDetails += "\nالإجمالي: " + total.toFixed(1) + "$";
+
+  const tableNumberInput = document.getElementById("tableNumber");
   const tableNumber = tableNumberInput ? tableNumberInput.value.trim() : "";
+
   if (tableNumber !== "") {
-    orderDetails += "\nرقم الطاولة: " + tableNumber;
+    orderDetails += "\n رقم الطاولة  : " + tableNumber ;
+   
   }
+ 
 
 
+  orderDetails += "\n\nهل ترغب بتأكيد الطلب؟";
 
+  if (confirm(orderDetails)) {
+    // إرسال عبر WhatsApp
+    let message = encodeURIComponent(
+      cart.map((item, index) =>
+        (index + 1) + "- " + item.name + " × " + item.quantity + " = " + (item.price * item.quantity).toFixed(1) + "$"
+      ).join("\n") +
+      "\n\nالإجمالي: " + total.toFixed(1) + "$"
+    );
 
-    orderDetails += "\n\nهل ترغب بتأكيد الطلب؟";
-
-    if (confirm(orderDetails)) {
-      let message = encodeURIComponent(
-        cart.map((item, index) =>
-          (index + 1) + "- " + item.name + " × " + item.quantity + " = " + (item.price * item.quantity) + "$"
-        ).join("\n") +
-        "\n\nالإجمالي: " + total + "$"
-      );
-
-      if (noteField && noteField.value.trim() !== "") {
-        message += "\n\nملاحظة: " + encodeURIComponent(noteField.value.trim());
-      }
-        if (tableNumber !== "") {
-      message += "\n\nرقم الطاولة: " + encodeURIComponent(tableNumber);
+    if (tableNumber !== "") {
+      message += "\n\n : " + (tableNumber);
     }
 
-      
-      document.getElementById("sendButton").addEventListener("click", function (event) {
-  event.preventDefault(); // منع الإرسال التلقائي للنموذج
+    window.open("https://wa.me/96181996762?text=" + message, "_blank");
 
-  let orderDetails = generateOrderSummary(); // أنشئ ملخص الطلب
-  let message = encodeURIComponent(orderDetails);
-
-  // ✅ نافذة التأكيد
-  if (confirm("هل تريد إرسال الطلب عبر واتساب؟")) {
-    // ✅ فتح واتساب بشكل مضمون
-    if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-      location.href = "https://wa.me/96181996762?text=" + message;
-    } else {
-      window.open("https://wa.me/96181996762?text=" + message, "_blank");
-    }
-
-    // ✅ تعبئة الحقول المخفية بالنموذج
+    // إرسال إلى Formspree
     document.getElementById("orderInput").value = orderDetails;
-    document.getElementById("tableInput").value = getTableNumber();
+    document.getElementById("tableInput").value = tableNumber;
+    document.getElementById("orderForm").submit();
 
-    // ✅ إرسال النموذج بعد تأخير بسيط
-    setTimeout(() => {
-      document.getElementById("orderForm").submit();
-    }, 1000);
-  }
-});
-      
-    }
-  }
+    // تفريغ السلة
+    cart = [];
+    renderCartPreview();
+  }}
 </script>
+
 
 </body>
 </html>
