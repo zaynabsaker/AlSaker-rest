@@ -318,7 +318,7 @@
   <label for="tableNumber" style="color: white;"></label>
   <input type="text";style="color:white" id="tableNumber"  placeholder="رقم الطاولة/ملاحظة" style="background-color: rgb(31, 225, 31);position:fixed;text-align: center; color:white;bottom: 65px;left: 50%;transform: translateX(-50%); width: 90px;height: 40px;border-radius: 6px;"/>
 </div>
-
+     
      <button onclick="checkout()" class="order-btn" style="background-color: red;border-radius: 12px; position:fixed;bottom: 20px;left: 50%;transform: translateX(-50%);z-index: 1000;color:aliceblue;
      padding:12px 60px;">تأكيد الطلب</button>
   </div>
@@ -409,11 +409,31 @@
     }
 
       
-      window.open("https://wa.me/96181996762?text=" + message, "_blank");
+      document.getElementById("sendButton").addEventListener("click", function (event) {
+  event.preventDefault(); // منع الإرسال التلقائي للنموذج
 
-      document.getElementById("orderInput").value=orderDetails;
-      document.getElementById("tableInput").value=tableNumber;
+  let orderDetails = generateOrderSummary(); // أنشئ ملخص الطلب
+  let message = encodeURIComponent(orderDetails);
+
+  // ✅ نافذة التأكيد
+  if (confirm("هل تريد إرسال الطلب عبر واتساب؟")) {
+    // ✅ فتح واتساب بشكل مضمون
+    if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+      location.href = "https://wa.me/96181996762?text=" + message;
+    } else {
+      window.open("https://wa.me/96181996762?text=" + message, "_blank");
+    }
+
+    // ✅ تعبئة الحقول المخفية بالنموذج
+    document.getElementById("orderInput").value = orderDetails;
+    document.getElementById("tableInput").value = getTableNumber();
+
+    // ✅ إرسال النموذج بعد تأخير بسيط
+    setTimeout(() => {
       document.getElementById("orderForm").submit();
+    }, 1000);
+  }
+});
       
     }
   }
