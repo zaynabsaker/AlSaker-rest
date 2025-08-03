@@ -28,7 +28,7 @@
       background-position: center;
       border-radius: 15px;
       color: white;
-      padding:25px;
+      padding:23px;
       margin-bottom: 22px;
       font-size: 22px;
       font-weight: bold;
@@ -36,8 +36,16 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
       position: relative;
       transition: all 0.3s ease;
+      
     }
 
+    @media (max-width:600px) {
+        .box{
+          width: 100%;
+        }
+        
+      }
+      
     .box.expanded {
       min-height: 220px;
     }
@@ -140,22 +148,13 @@
   }
   
   
-  #table-number {
-  background-color: #4aca63;
-      color: white;
-      border: none;
-      padding: 5px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
-}
-
-#table-number::placeholder {
- background-color: red; position:fixed;bottom: 20px;left: 50%;transform: translateX(-50%)
-}
+  #tableNumber::placeholder{
+    color: white;
+    opacity: 1;
+  }
 
 #table-number:focus {
-  background-color: red; position:fixed;bottom: 20px;left: 50%;transform: translateX(-50%)
+  background-color: red; position:fixed;bottom: 20px;left: 50%;transform: translateX(-50%);color: white;
 }
   /* زر الإضافة للسلة */
   .menu-item button.order-btn {
@@ -167,8 +166,32 @@
     cursor: pointer;
     font-size: 10px;
     margin-left: 6px;
-    flex-shrink: 0;
-  }
+    flex-shrink: 0;}
+
+    #toast {
+  visibility: hidden;
+  min-width: 200px;
+  background-color: #4aca63;
+  color: white;
+  text-align: center;
+  border-radius: 8px;
+  padding: 12px 16px;
+  position: fixed;
+  z-index: 9999;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 14px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  transition: visibility 0s, opacity 0.3s ease;
+  opacity: 0;
+}
+
+#toast.show {
+  visibility: visible;
+  opacity: 1;
+}
+  
 
   
   </style>
@@ -315,14 +338,19 @@
       </div>
     </div>
 
-  <label for="tableNumber" style="color: white;"></label>
-  <input type="text";style="color:white" id="tableNumber"  placeholder="رقم الطاولة/ملاحظة" style="background-color: rgb(31, 225, 31);position:fixed;text-align: center; color:white;bottom: 65px;left: 50%;transform: translateX(-50%); width: 90px;height: 40px;border-radius: 6px;"/>
+    <div id="toast"></div>
+
+  <div id="table-container" style="position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%); text-align: center; z-index: 9999;">
+  <input type="text" id="tableNumber"
+         placeholder="رقم الطاولة/ملاحظة"
+         style="background-color: red; color: white; text-align: center; width: 120px; height: 40px; border-radius: 60px; border: none; font-size: 14px;" />
+  <div id="table-error" style="color: red; font-size: 13px; margin-top: 5px;"></div>
 </div>
 
-
-<div id="cart-icon" onclick="toggleCart()" style="position:fixed;top:300px;left:20px;z-index:1000;cursor:pointer;font-size:24px;background-color: #e74c3c;border-radius: 12px;">
+<div id="cart-icon" onclick="toggleCart()" style="position:fixed;top:300px;left:20px;z-index:1000;cursor:pointer;font-size:24px;background-color: red; padding:12px 12px;border-radius: 30px;">
   🛒
 </div>
+
 
 <!-- صندوق السلة الصغير -->
 <div id="cart-modal" style="display:none;position:fixed;top:90px;left: 20px;
@@ -365,16 +393,9 @@ width:300px;max-height:400px;background:#fff;border-radius:10px;padding:15px;box
 
   let cart = [];
 
-  function addToCart(productName, price, quantity) {
-    quantity = parseInt(quantity);
-    if (quantity <= 0 || isNaN(quantity)) {
-      alert("يرجى إدخال كمية صحيحة.");
-      return;
-    }
-    cart.push({ name: productName, price: price, quantity: quantity });
-    alert("تمت إضافة " + quantity + " من " + productName + " بسعر " + price + "$ إلى الطلب.");
-    updateCartModal();
-  }
+ 
+ 
+
   function toggleCart() {
   const modal = document.getElementById("cart-modal");
   modal.style.display = modal.style.display === "none" ? "block" : "none";
@@ -427,6 +448,7 @@ function increaseQty(index) {
   updateCartModal();
 }
 
+
 function decreaseQty(index) {
   if (cart[index].quantity > 1) {
     cart[index].quantity--;
@@ -442,6 +464,29 @@ function removeItem(index) {
   cart.splice(index, 1);
   updateCartModal();
 }
+  
+
+  function showToast(message) {
+    const toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.className = "show";
+    setTimeout(() => {
+      toast.className = toast.className.replace("show", "");
+    }, 2500);
+  }
+
+  function addToCart(productName, price, quantity) {
+    quantity = parseInt(quantity);
+    if (quantity <= 0 || isNaN(quantity)) {
+      showToast("❌ يرجى إدخال كمية صحيحة.");
+      return;
+    }
+    cart.push({ name: productName, price: price, quantity: quantity });
+    showToast("✅ تمت إضافة " + quantity + " من " + productName + " إلى السلة.");
+    updateCartModal();
+  }
+
+  
 
   function checkout() {
     if (cart.length === 0) {
@@ -470,9 +515,14 @@ function removeItem(index) {
     }
      const tableNumberInput = document.getElementById("tableNumber");
   const tableNumber = tableNumberInput ? tableNumberInput.value.trim() : "";
-  if (tableNumber !== "") {
-    orderDetails += "\nرقم الطاولة: " + tableNumber;
-  }
+  const errorDiv=document.getElementById("table-error");
+  if (!tableNumber){
+   errorDiv.textContent="  يرجى ادخال رقم الطاولة لتأكيد الطلب!! ";
+    tableNumberInput.focus();
+    return;}
+    else{
+      document.getElementById("table-error").textContent="";}
+    
 
 
 
@@ -495,7 +545,9 @@ function removeItem(index) {
     }
 
       
-      window.open("https://wa.me/96181996762?text=" + message, "_blank");
+      
+     window.open("https://wa.me/96181996762?text=" + message, "_blank"); 
+     window.open("https://wa.me/96181305713?text=" + message, "_blank");
 
       document.getElementById("orderInput").value=orderDetails;
       document.getElementById("tableInput").value=tableNumber;
