@@ -316,7 +316,7 @@
   نرجيلة
   <span class="close-btn" onclick="event.stopPropagation(); collapseBox(this)">×</span>
   <div class="items">
-    <div class="menu-item"><span class="item-name">تفاحتين</span> <span class="price">4$</span><input type="number" min="1" value="1" class="qty-input" /><button class="order-btn" onclick="addToCart('تفاحتين',4,this.previousElementSibling.value)">أضف إلى السلة</button></div>
+    <div class="menu-item"><span class="item-name">تفاحتين</span> <span class="price">4$</span><input type="number" min="1" value="1" class="qty-input" /><button class="order-btn" onclick="addToCart('تفاحتين',4,this.previousElementSibling.value,true)">أضف إلى السلة</button></div>
     <div class="menu-item"><span class="item-name">نعنع/عنب</span> <span class="price">4$</span><input type="number" min="1" value="1" class="qty-input" /><button class="order-btn" onclick="addToCart('نعنع/عنب',4,this.previousElementSibling.value)">أضف إلى السلة</button></div>
     <div class="menu-item"><span class="item-name">بطيخ مع نعنع</span> <span class="price">5$</span><input type="number" min="1" value="1" class="qty-input" /><button class="order-btn" onclick="addToCart('بطيخ مع نعنع',1,this.previousElementSibling.value)">أضف إلى السلة</button></div>
     <div class="menu-item"><span class="item-name">تبديل رأس</span> <span class="price">2$</span><input type="number" min="1" value="1" class="qty-input" /><button class="order-btn" onclick="addToCart('تبديل رأس',2,this.previousElementSibling.value)">أضف إلى السلة</button></div>
@@ -391,15 +391,17 @@ width:300px;max-height:400px;background:#fff;border-radius:10px;padding:15px;box
     box.classList.remove('expanded');
   }
 
-  let cart = [];
+   let cart = [];       // السلة العامة (مطبخ)
+let argileCart = []; // سلة النرجيلة
 
- 
- 
-
-  function toggleCart() {
+function toggleCart() {
   const modal = document.getElementById("cart-modal");
-  modal.style.display = modal.style.display === "none" ? "block" : "none";
-  updateCartModal();
+  if (modal.style.display === "none" || modal.style.display === "") {
+    modal.style.display = "block";
+    updateCartModal();
+  } else {
+    modal.style.display = "none";
+  }
 }
 
 function updateCartModal() {
@@ -408,41 +410,104 @@ function updateCartModal() {
   container.innerHTML = "";
   let total = 0;
 
-  if (cart.length === 0) {
+  if (cart.length === 0 && argileCart.length === 0) {
     container.innerHTML = "<p>السلة فارغة.</p>";
     totalDisplay.textContent = "الإجمالي: 0$";
     return;
   }
 
-  cart.forEach((item, index) => {
-    const itemTotal = item.price * item.quantity;
-    total += itemTotal;
+  // 🧑‍🍳 المطبخ
+  if (cart.length > 0) {
+    const title = document.createElement("h4");
+    title.textContent = "🧑‍🍳 المطبخ";
+    container.appendChild(title);
 
-    const itemDiv = document.createElement("div");
-    itemDiv.style.display = "flex";
-    itemDiv.style.justifyContent = "space-between";
-    itemDiv.style.alignItems = "center";
-    itemDiv.style.margin = "10px 0";
-    itemDiv.style.gap = "6px";
-    itemDiv.style.flexWrap = "wrap";
+    cart.forEach((item, index) => {
+      const itemTotal = item.price * item.quantity;
+      total += itemTotal;
 
-    itemDiv.innerHTML = `
-      <span style="flex:2;text-align:right;">${item.name}</span>
-      <span style="flex:1;">${itemTotal.toFixed(2)}$</span>
-      <div style="display:flex;gap:5px;align-items:center;flex:1;">
-        <button onclick="decreaseQty(${index})" style="padding:2px 6px;">-</button>
-        <span>${item.quantity}</span>
-        <button onclick="increaseQty(${index})" style="padding:2px 6px;">+</button>
-      </div>
-      <button onclick="removeItem(${index})" style="color:red;font-size:16px;">🗑️</button>
-    `;
+      const itemDiv = document.createElement("div");
+      itemDiv.style.display = "flex";
+      itemDiv.style.justifyContent = "space-between";
+      itemDiv.style.alignItems = "center";
+      itemDiv.style.margin = "8px 0";
 
-    container.appendChild(itemDiv);
-  });
+      itemDiv.innerHTML = `
+        <span>${item.name}</span>
+        <span>${itemTotal.toFixed(2)}$</span>
+        <div>
+          <button onclick="decreaseQty(${index}, false)">-</button>
+          <span>${item.quantity}</span>
+          <button onclick="increaseQty(${index}, false)">+</button>
+        </div>
+        <button onclick="removeItem(${index}, false)" style="color:red;">🗑️</button>
+      `;
+      container.appendChild(itemDiv);
+    });
+  }
+
+  // 🚬 النرجيلة
+  if (argileCart.length > 0) {
+    const title = document.createElement("h4");
+    title.textContent = "🚬 النرجيلة";
+    container.appendChild(title);
+
+    argileCart.forEach((item, index) => {
+      const itemTotal = item.price * item.quantity;
+      total += itemTotal;
+
+      const itemDiv = document.createElement("div");
+      itemDiv.style.display = "flex";
+      itemDiv.style.justifyContent = "space-between";
+      itemDiv.style.alignItems = "center";
+      itemDiv.style.margin = "8px 0";
+
+      itemDiv.innerHTML = `
+        <span>${item.name}</span>
+        <span>${itemTotal.toFixed(2)}$</span>
+        <div>
+          <button onclick="decreaseQty(${index}, true)">-</button>
+          <span>${item.quantity}</span>
+          <button onclick="increaseQty(${index}, true)">+</button>
+        </div>
+        <button onclick="removeItem(${index}, true)" style="color:red;">🗑️</button>
+      `;
+      container.appendChild(itemDiv);
+    });
+  }
 
   totalDisplay.textContent = "الإجمالي: " + total.toFixed(2) + "$";
 }
 
+function increaseQty(index, isArgile) {
+  if (isArgile) {
+    argileCart[index].quantity++;
+  } else {
+    cart[index].quantity++;
+  }
+  updateCartModal();
+}
+
+function decreaseQty(index, isArgile) {
+  let arr = isArgile ? argileCart : cart;
+  if (arr[index].quantity > 1) {
+    arr[index].quantity--;
+  } else {
+    if (confirm("هل تريد حذف هذا العنصر؟")) {
+      arr.splice(index, 1);
+    }
+  }
+  updateCartModal();
+}
+
+function removeItem(index, isArgile) {
+  if (isArgile) {
+    argileCart.splice(index, 1);
+  } else {
+    cart.splice(index, 1);
+  }
+  updateCartModal();
+}
 function increaseQty(index) {
   cart[index].quantity++;
   updateCartModal();
@@ -551,7 +616,7 @@ function removeItem(index) {
 
     // ✅ إذا الطلب فيه فقط نرجيلة → يروح على الرقم الخاص
     if (hasArgile && !hasOther) {
-      window.open("https://wa.me/96181305713?text=" + message, "_blank"); 
+      window.open("https://wa.me/96170698599?text=" + message, "_blank"); 
     } 
     // ✅ إذا فيه أشياء غير النرجيلة (مشاوي/مقبلات/مشروبات) → يروح للأرقام الأصلية
     else {
