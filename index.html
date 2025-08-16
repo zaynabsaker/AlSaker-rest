@@ -45,7 +45,7 @@
         }
         
       }
-      
+
     .box.expanded {
       min-height: 220px;
     }
@@ -123,7 +123,7 @@
     text-align: right; /* الاسم على اليمين */
     white-space: nowrap;
     text-overflow: ellipsis;
-    font-size: 10px;
+    font-size: 15px;
   }
 
   /* السعر في المنتصف */
@@ -476,85 +476,94 @@ function removeItem(index) {
   }
 
   function addToCart(productName, price, quantity) {
-    quantity = parseInt(quantity);
-    if (quantity <= 0 || isNaN(quantity)) {
-      showToast("❌ يرجى إدخال كمية صحيحة.");
-      return;
-    }
-    cart.push({ name: productName, price: price, quantity: quantity });
-    showToast("✅ تمت إضافة " + quantity + " من " + productName + " إلى السلة.");
-    updateCartModal();
+  quantity = parseInt(quantity);
+  if (quantity <= 0 || isNaN(quantity)) {
+    showToast("❌ يرجى إدخال كمية صحيحة.");
+    return;
   }
 
-  
+  let existing = cart.find(item => item.name === productName);
+  if (existing) {
+    existing.quantity += quantity;
+  } else {
+    cart.push({ name: productName, price: price, quantity: quantity });
+  }
+
+  showToast("✅ تمت إضافة " + quantity + " من " + productName + " إلى السلة.");
+  updateCartModal();
+}
 
   function checkout() {
-    if (cart.length === 0) {
-      alert("لم يتم إضافة أي عنصر إلى السلة.");
-      return;
+  if (cart.length === 0) {
+    alert("لم يتم إضافة أي عنصر إلى السلة.");
+    return;
+  }
+
+  let total = 0;
+  let orderDetails = "تفاصيل الطلب:\n";
+  let hasArgile = false; // ✅ هل الطلب فيه نرجيلة فقط؟
+  let hasOther = false;  // ✅ هل فيه أشياء غير النرجيلة؟
+
+  cart.forEach((item, index) => {
+    const itemTotal = item.price * item.quantity;
+    orderDetails +=
+      (index + 1) + "- " + item.name + " × " + item.quantity + " = " + itemTotal + "$\n";
+    total += itemTotal;
+
+    // ✅ نحدد إذا العنصر من النرجيلة أو غيره
+    if (
+      item.name.includes("تفاحتين") ||
+      item.name.includes("نعنع") ||
+      item.name.includes("بطيخ") ||
+      item.name.includes("تبديل رأس") ||
+      item.name.includes("فحم")
+    ) {
+      hasArgile = true;
+    } else {
+      hasOther = true;
     }
+  });
 
-    let total = 0;
-    let orderDetails = "تفاصيل الطلب:\n";
+  orderDetails += "\nالإجمالي: " + total + "$";
 
-    cart.forEach((item, index) => {
-      const itemTotal = item.price * item.quantity;
-      orderDetails +=
-        (index + 1) + "- " + item.name + " × " + item.quantity + " = " + itemTotal + "$\n";
-      total += itemTotal;
-    });
-
-    orderDetails += "\nالإجمالي: " + total + "$";
-
-    const noteField = document.getElementById("note");
-    if (noteField) {
-      const note = noteField.value.trim();
-      if (note !== "") {
-        orderDetails += "\nملاحظة: " + note;
-      }
-    }
-     const tableNumberInput = document.getElementById("tableNumber");
+  const tableNumberInput = document.getElementById("tableNumber");
   const tableNumber = tableNumberInput ? tableNumberInput.value.trim() : "";
   const errorDiv=document.getElementById("table-error");
+
   if (!tableNumber){
-   errorDiv.textContent="  يرجى ادخال رقم الطاولة لتأكيد الطلب!! ";
+    errorDiv.textContent="  يرجى ادخال رقم الطاولة لتأكيد الطلب!! ";
     tableNumberInput.focus();
-    return;}
-    else{
-      document.getElementById("table-error").textContent="";}
-    
-
-
-
-
-    orderDetails += "\n\nهل ترغب بتأكيد الطلب؟";
-
-    if (confirm(orderDetails)) {
-      let message = encodeURIComponent(
-        cart.map((item, index) =>
-          (index + 1) + "- " + item.name + " × " + item.quantity + " = " + (item.price * item.quantity) + "$"
-        ).join("\n") +
-        "\n\nالإجمالي: " + total + "$"
-      );
-
-      if (noteField && noteField.value.trim() !== "") {
-        message += "\n\nملاحظة: " + encodeURIComponent(noteField.value.trim());
-      }
-        if (tableNumber !== "") {
-      message += "\n\nرقم الطاولة: " + encodeURIComponent(tableNumber);
-    }
-
-      
-      
-     window.open("https://wa.me/96181996762?text=" + message, "_blank"); 
-     window.open("https://wa.me/96181305713?text=" + message, "_blank");
-
-      document.getElementById("orderInput").value=orderDetails;
-      document.getElementById("tableInput").value=tableNumber;
-      document.getElementById("orderForm").submit();
-      
-    }
+    return;
+  } else {
+    document.getElementById("table-error").textContent="";
   }
+
+  orderDetails += "\n\nهل ترغب بتأكيد الطلب؟";
+
+  if (confirm(orderDetails)) {
+    let message = encodeURIComponent(
+      cart.map((item, index) =>
+        (index + 1) + "- " + item.name + " × " + item.quantity + " = " + (item.price * item.quantity) + "$"
+      ).join("\n") +
+      "\n\nالإجمالي: " + total + "$" +
+      "\n\nرقم الطاولة: " + encodeURIComponent(tableNumber)
+    );
+
+    // ✅ إذا الطلب فيه فقط نرجيلة → يروح على الرقم الخاص
+    if (hasArgile && !hasOther) {
+      window.open("https://wa.me/96181305713?text=" + message, "_blank"); 
+    } 
+    // ✅ إذا فيه أشياء غير النرجيلة (مشاوي/مقبلات/مشروبات) → يروح للأرقام الأصلية
+    else {
+      window.open("https://wa.me/96181996762?text=" + message, "_blank"); 
+      
+    }
+
+    document.getElementById("orderInput").value=orderDetails;
+    document.getElementById("tableInput").value=tableNumber;
+    document.getElementById("orderForm").submit();
+  }
+}
 </script>
 
 </body>
