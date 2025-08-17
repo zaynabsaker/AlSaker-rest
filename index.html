@@ -20,7 +20,7 @@
 
     .box-container {
       max-width: 500px;
-      margin: auto;
+      margin: 0 auto;        /* يوسّط الكونتينر */
       align-items: center; /* يضع جميع البوكسات في الوسط */
     }
 
@@ -37,8 +37,10 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
       position: relative;
       transition: all 0.3s ease;
-      max-width: 400px; /* تحدد عرض أقصى للبوكس حتى لا يتمدد أكثر */
-      margin: 0 auto 22px auto; /* يضمن أن يكون في الوسط */
+      
+       width: 90%;            /* عرض نسبي للموبايل */
+  max-width: 450px;      /* لا يتعدى حجم معين */
+  margin: 10px auto;     /* يوسّطه بالكامل */
       
     }
 
