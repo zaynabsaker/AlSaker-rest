@@ -45,7 +45,7 @@
         }
         
       }
-
+      
     .box.expanded {
       min-height: 220px;
     }
@@ -123,7 +123,7 @@
     text-align: right; /* الاسم على اليمين */
     white-space: nowrap;
     text-overflow: ellipsis;
-    font-size: 15px;
+    font-size: 14px;
   }
 
   /* السعر في المنتصف */
@@ -197,9 +197,31 @@
   </style>
 </head>
 <body>
+  
 
   <h1>أهلاً بكم في مطعم الصقر</h1>
   <h4>نفتح من الساعة 10 صباحاً حتى الساعة 10 مساءً</h4>
+  <!-- شاشة إدخال الباسورد -->
+<div id="password-screen" 
+     style="position:fixed;top:0;left:0;width:100%;height:100%;
+            background:url('62a783f6-83ec-4fd1-b764-38e5c1e432c8.jpeg') no-repeat center center/cover;
+            display:flex;justify-content:center;align-items:center;
+            flex-direction:column;z-index:99999;">
+
+  <div style="background:rgba(255,255,255,0.8);padding:30px;border-radius:15px;text-align:center;">
+    <h2>🔒 الرجاء إدخال كلمة المرور</h2>
+    <input type="password" id="passwordInput" placeholder="كلمة المرور" 
+           style="padding:10px;font-size:16px;border-radius:8px;
+                  border:1px solid #ccc;text-align:center;margin-bottom:10px;width:200px;border-radius: 400px;" />
+    <br>
+    <button onclick="checkPassword()" 
+            style="background:red;color:white;padding:10px 20px;border:none;
+                   border-radius:8px;cursor:pointer;font-size:16px;border-radius: 400px;">تأكيد</button>
+    <p id="password-error" style="color:red;margin-top:10px;"></p>
+  </div>
+</div>
+
+  <div id="menu-content" style="display:none;"></div>
 
   <div class="box-container">
 
@@ -316,7 +338,7 @@
   نرجيلة
   <span class="close-btn" onclick="event.stopPropagation(); collapseBox(this)">×</span>
   <div class="items">
-    <div class="menu-item"><span class="item-name">تفاحتين</span> <span class="price">4$</span><input type="number" min="1" value="1" class="qty-input" /><button class="order-btn" onclick="addToCart('تفاحتين',4,this.previousElementSibling.value,true)">أضف إلى السلة</button></div>
+    <div class="menu-item"><span class="item-name">تفاحتين</span> <span class="price">4$</span><input type="number" min="1" value="1" class="qty-input" /><button class="order-btn" onclick="addToCart('تفاحتين',4,this.previousElementSibling.value)">أضف إلى السلة</button></div>
     <div class="menu-item"><span class="item-name">نعنع/عنب</span> <span class="price">4$</span><input type="number" min="1" value="1" class="qty-input" /><button class="order-btn" onclick="addToCart('نعنع/عنب',4,this.previousElementSibling.value)">أضف إلى السلة</button></div>
     <div class="menu-item"><span class="item-name">بطيخ مع نعنع</span> <span class="price">5$</span><input type="number" min="1" value="1" class="qty-input" /><button class="order-btn" onclick="addToCart('بطيخ مع نعنع',1,this.previousElementSibling.value)">أضف إلى السلة</button></div>
     <div class="menu-item"><span class="item-name">تبديل رأس</span> <span class="price">2$</span><input type="number" min="1" value="1" class="qty-input" /><button class="order-btn" onclick="addToCart('تبديل رأس',2,this.previousElementSibling.value)">أضف إلى السلة</button></div>
@@ -375,6 +397,20 @@ width:300px;max-height:400px;background:#fff;border-radius:10px;padding:15px;box
   <input type="hidden" name="table" id="tableInput"></form>
 
   <script>
+    function checkPassword() {
+    const input = document.getElementById("passwordInput").value;
+    const errorMsg = document.getElementById("password-error");
+
+    // ✅ غيّر كلمة السر هنا كما تشاء
+    const correctPassword = "1234";
+
+    if (input === correctPassword) {
+      document.getElementById("password-screen").style.display = "none";
+      document.getElementById("menu-content").style.display = "block";
+    } else {
+      errorMsg.textContent = "❌ كلمة المرور غير صحيحة!";
+    }
+  }
   function handleBoxClick(event, box) {
     // ✅ إذا كان النقر على زر أو إدخال داخل البوكس، تجاهل
     if (event.target.closest('button') || event.target.closest('input')) {
@@ -391,17 +427,15 @@ width:300px;max-height:400px;background:#fff;border-radius:10px;padding:15px;box
     box.classList.remove('expanded');
   }
 
-   let cart = [];       // السلة العامة (مطبخ)
-let argileCart = []; // سلة النرجيلة
+  let cart = [];
 
-function toggleCart() {
+ 
+ 
+
+  function toggleCart() {
   const modal = document.getElementById("cart-modal");
-  if (modal.style.display === "none" || modal.style.display === "") {
-    modal.style.display = "block";
-    updateCartModal();
-  } else {
-    modal.style.display = "none";
-  }
+  modal.style.display = modal.style.display === "none" ? "block" : "none";
+  updateCartModal();
 }
 
 function updateCartModal() {
@@ -410,104 +444,41 @@ function updateCartModal() {
   container.innerHTML = "";
   let total = 0;
 
-  if (cart.length === 0 && argileCart.length === 0) {
+  if (cart.length === 0) {
     container.innerHTML = "<p>السلة فارغة.</p>";
     totalDisplay.textContent = "الإجمالي: 0$";
     return;
   }
 
-  // 🧑‍🍳 المطبخ
-  if (cart.length > 0) {
-    const title = document.createElement("h4");
-    title.textContent = "🧑‍🍳 المطبخ";
-    container.appendChild(title);
+  cart.forEach((item, index) => {
+    const itemTotal = item.price * item.quantity;
+    total += itemTotal;
 
-    cart.forEach((item, index) => {
-      const itemTotal = item.price * item.quantity;
-      total += itemTotal;
+    const itemDiv = document.createElement("div");
+    itemDiv.style.display = "flex";
+    itemDiv.style.justifyContent = "space-between";
+    itemDiv.style.alignItems = "center";
+    itemDiv.style.margin = "10px 0";
+    itemDiv.style.gap = "6px";
+    itemDiv.style.flexWrap = "wrap";
 
-      const itemDiv = document.createElement("div");
-      itemDiv.style.display = "flex";
-      itemDiv.style.justifyContent = "space-between";
-      itemDiv.style.alignItems = "center";
-      itemDiv.style.margin = "8px 0";
+    itemDiv.innerHTML = `
+      <span style="flex:2;text-align:right;">${item.name}</span>
+      <span style="flex:1;">${itemTotal.toFixed(2)}$</span>
+      <div style="display:flex;gap:5px;align-items:center;flex:1;">
+        <button onclick="decreaseQty(${index})" style="padding:2px 6px;">-</button>
+        <span>${item.quantity}</span>
+        <button onclick="increaseQty(${index})" style="padding:2px 6px;">+</button>
+      </div>
+      <button onclick="removeItem(${index})" style="color:red;font-size:16px;">🗑️</button>
+    `;
 
-      itemDiv.innerHTML = `
-        <span>${item.name}</span>
-        <span>${itemTotal.toFixed(2)}$</span>
-        <div>
-          <button onclick="decreaseQty(${index}, false)">-</button>
-          <span>${item.quantity}</span>
-          <button onclick="increaseQty(${index}, false)">+</button>
-        </div>
-        <button onclick="removeItem(${index}, false)" style="color:red;">🗑️</button>
-      `;
-      container.appendChild(itemDiv);
-    });
-  }
-
-  // 🚬 النرجيلة
-  if (argileCart.length > 0) {
-    const title = document.createElement("h4");
-    title.textContent = "🚬 النرجيلة";
-    container.appendChild(title);
-
-    argileCart.forEach((item, index) => {
-      const itemTotal = item.price * item.quantity;
-      total += itemTotal;
-
-      const itemDiv = document.createElement("div");
-      itemDiv.style.display = "flex";
-      itemDiv.style.justifyContent = "space-between";
-      itemDiv.style.alignItems = "center";
-      itemDiv.style.margin = "8px 0";
-
-      itemDiv.innerHTML = `
-        <span>${item.name}</span>
-        <span>${itemTotal.toFixed(2)}$</span>
-        <div>
-          <button onclick="decreaseQty(${index}, true)">-</button>
-          <span>${item.quantity}</span>
-          <button onclick="increaseQty(${index}, true)">+</button>
-        </div>
-        <button onclick="removeItem(${index}, true)" style="color:red;">🗑️</button>
-      `;
-      container.appendChild(itemDiv);
-    });
-  }
+    container.appendChild(itemDiv);
+  });
 
   totalDisplay.textContent = "الإجمالي: " + total.toFixed(2) + "$";
 }
 
-function increaseQty(index, isArgile) {
-  if (isArgile) {
-    argileCart[index].quantity++;
-  } else {
-    cart[index].quantity++;
-  }
-  updateCartModal();
-}
-
-function decreaseQty(index, isArgile) {
-  let arr = isArgile ? argileCart : cart;
-  if (arr[index].quantity > 1) {
-    arr[index].quantity--;
-  } else {
-    if (confirm("هل تريد حذف هذا العنصر؟")) {
-      arr.splice(index, 1);
-    }
-  }
-  updateCartModal();
-}
-
-function removeItem(index, isArgile) {
-  if (isArgile) {
-    argileCart.splice(index, 1);
-  } else {
-    cart.splice(index, 1);
-  }
-  updateCartModal();
-}
 function increaseQty(index) {
   cart[index].quantity++;
   updateCartModal();
@@ -547,10 +518,14 @@ function removeItem(index) {
     return;
   }
 
-  let existing = cart.find(item => item.name === productName);
-  if (existing) {
-    existing.quantity += quantity;
+  // 🔍 فحص إذا الصنف موجود مسبقًا في السلة
+  const existingItem = cart.find(item => item.name === productName);
+
+  if (existingItem) {
+    // ✅ إذا موجود: زوّد الكمية
+    existingItem.quantity += quantity;
   } else {
+    // ➕ إذا مش موجود: ضيفه جديد
     cart.push({ name: productName, price: price, quantity: quantity });
   }
 
@@ -558,78 +533,76 @@ function removeItem(index) {
   updateCartModal();
 }
 
+  
+
   function checkout() {
-  if (cart.length === 0) {
-    alert("لم يتم إضافة أي عنصر إلى السلة.");
-    return;
-  }
-
-  let total = 0;
-  let orderDetails = "تفاصيل الطلب:\n";
-  let hasArgile = false; // ✅ هل الطلب فيه نرجيلة فقط؟
-  let hasOther = false;  // ✅ هل فيه أشياء غير النرجيلة؟
-
-  cart.forEach((item, index) => {
-    const itemTotal = item.price * item.quantity;
-    orderDetails +=
-      (index + 1) + "- " + item.name + " × " + item.quantity + " = " + itemTotal + "$\n";
-    total += itemTotal;
-
-    // ✅ نحدد إذا العنصر من النرجيلة أو غيره
-    if (
-      item.name.includes("تفاحتين") ||
-      item.name.includes("نعنع") ||
-      item.name.includes("بطيخ") ||
-      item.name.includes("تبديل رأس") ||
-      item.name.includes("فحم")
-    ) {
-      hasArgile = true;
-    } else {
-      hasOther = true;
+    if (cart.length === 0) {
+      alert("لم يتم إضافة أي عنصر إلى السلة.");
+      return;
     }
-  });
 
-  orderDetails += "\nالإجمالي: " + total + "$";
+    let total = 0;
+    let orderDetails = "تفاصيل الطلب:\n";
 
-  const tableNumberInput = document.getElementById("tableNumber");
+    cart.forEach((item, index) => {
+      const itemTotal = item.price * item.quantity;
+      orderDetails +=
+        (index + 1) + "- " + item.name + " × " + item.quantity + " = " + itemTotal + "$\n";
+      total += itemTotal;
+    });
+
+    orderDetails += "\nالإجمالي: " + total + "$";
+
+    const noteField = document.getElementById("note");
+    if (noteField) {
+      const note = noteField.value.trim();
+      if (note !== "") {
+        orderDetails += "\nملاحظة: " + note;
+      }
+    }
+     const tableNumberInput = document.getElementById("tableNumber");
   const tableNumber = tableNumberInput ? tableNumberInput.value.trim() : "";
   const errorDiv=document.getElementById("table-error");
-
   if (!tableNumber){
-    errorDiv.textContent="  يرجى ادخال رقم الطاولة لتأكيد الطلب!! ";
+   errorDiv.textContent="  يرجى ادخال رقم الطاولة لتأكيد الطلب!! ";
     tableNumberInput.focus();
-    return;
-  } else {
-    document.getElementById("table-error").textContent="";
-  }
+    return;}
+    else{
+      document.getElementById("table-error").textContent="";}
+    
 
-  orderDetails += "\n\nهل ترغب بتأكيد الطلب؟";
 
-  if (confirm(orderDetails)) {
-    let message = encodeURIComponent(
-      cart.map((item, index) =>
-        (index + 1) + "- " + item.name + " × " + item.quantity + " = " + (item.price * item.quantity) + "$"
-      ).join("\n") +
-      "\n\nالإجمالي: " + total + "$" +
-      "\n\nرقم الطاولة: " + encodeURIComponent(tableNumber)
-    );
 
-    // ✅ إذا الطلب فيه فقط نرجيلة → يروح على الرقم الخاص
-    if (hasArgile && !hasOther) {
-      window.open("https://wa.me/96170698599?text=" + message, "_blank"); 
-    } 
-    // ✅ إذا فيه أشياء غير النرجيلة (مشاوي/مقبلات/مشروبات) → يروح للأرقام الأصلية
-    else {
-      window.open("https://wa.me/96181996762?text=" + message, "_blank"); 
-      
+
+    orderDetails += "\n\nهل ترغب بتأكيد الطلب؟";
+
+    if (confirm(orderDetails)) {
+      let message = encodeURIComponent(
+        cart.map((item, index) =>
+          (index + 1) + "- " + item.name + " × " + item.quantity + " = " + (item.price * item.quantity) + "$"
+        ).join("\n") +
+        "\n\nالإجمالي: " + total + "$"
+      );
+
+      if (noteField && noteField.value.trim() !== "") {
+        message += "\n\nملاحظة: " + encodeURIComponent(noteField.value.trim());
+      }
+        if (tableNumber !== "") {
+      message += "\n\nرقم الطاولة: " + encodeURIComponent(tableNumber);
     }
 
-    document.getElementById("orderInput").value=orderDetails;
-    document.getElementById("tableInput").value=tableNumber;
-    document.getElementById("orderForm").submit();
+      
+      
+     window.open("https://wa.me/96181996762?text=" + message, "_blank"); 
+     
+      document.getElementById("orderInput").value=orderDetails;
+      document.getElementById("tableInput").value=tableNumber;
+      document.getElementById("orderForm").submit();
+      
+    }
   }
-}
 </script>
 
 </body>
 </html>
+Footer
