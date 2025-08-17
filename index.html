@@ -10,7 +10,7 @@
       font-family: Arial, sans-serif;
       background-color: #f5f5f5;
       text-align: center;
-      padding: 40px 40px;
+      padding: 40px 20px;
       color: #333;
       direction: rtl;
     }
@@ -21,8 +21,12 @@
 
     .box-container {
       max-width: 500px;
-      margin: 0 auto;        /* يوسّط الكونتينر */
-      align-items: center; /* يضع جميع البوكسات في الوسط */
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* يوسّط عمودياً */
+  align-items: center;     /* يوسّط أفقياً */
+  min-height: 100vh;       /* يخلي الكونتينر ياخذ طول الشاشة */
     }
 
     .box {
@@ -30,7 +34,7 @@
       background-position: center;
       border-radius: 15px;
       color: white;
-      padding:20px 20px;
+      padding:23px;
       margin-bottom: 50px;
       font-size: 22px;
       font-weight: bold;
